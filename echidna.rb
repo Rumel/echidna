@@ -61,12 +61,56 @@ write_json('list-playlists-mine', playlists_result)
 #   puts JSON.pretty_generate(playlist)
 # end
 
-channels = [
-  "UCMqWeJDl7yjblwPKVNo4XfA", # Huskers
-]
+class Channel
+  attr_accessor :id, :filter, :max_results, :name
 
-football_regex = "((Football).*(Highlights))|((Highlights).*(Football))"
-volleyball_regex = "((Volleyball).*(Highlights))|((Highlights).*(Volleyball))"
+  def initialize(h = {})
+    h.each {|k,v| public_send("#{k}=",v)}
+  end
+
+  def max_results
+    @max_results || 25 
+  end
+end
+
+channels = [
+  Channel.new(
+    name: "Huskers", 
+    id: "UCMqWeJDl7yjblwPKVNo4XfA",
+    filter: "((Football).*(Highlights))|((Highlights).*(Football))|((Volleyball).*(Highlights))|((Highlights).*(Volleyball))|((Basketball).*(Highlights))|((Highlights).*(Basketball))",
+    max_results: 25
+  ),
+  Channel.new(
+    name: "NHL",
+    id: "UCqFMzb-4AUf6WAIbl132QKA",
+    filter: "(Blues).*(Highlights)",
+    max_results: 50
+  ),
+  Channel.new(
+    name: "Cardinals",
+    id: "UCwaMqLYzbyp2IbFgcF_s5Og",
+    filter: "Highlights",
+    max_results: 25
+  ),
+  Channel.new(
+    name: "MatthewLovesBall",
+    id: "UC4GNCKohtEHRccrxKQiDJNg",
+    filter: "Nebraska",
+    max_results: 50
+  ),
+  Channel.new(
+    name: "Formula 1",
+    id: "UCB_qr75-ydFVKSF9Dmo6izg",
+    filter: "Highlights",
+    max_results: 25
+  ),
+  Channel.new(
+    name: "Liverpool FC",
+    id: "UC9LQwHZoucFT94I2h6JOcjw",
+    filter: "HIGHLIGHTS",
+    max_results: 25
+  )
+]
 
 highlights_id = "PLdP6kCUEAT1_PZxWWvTGsWi-YMw1bVGl2"
 
@@ -97,27 +141,34 @@ def get_position(current_items, item)
 end
 
 # snippet.position can be used
-channels.each do |channel_id|
+channels.each do |current_channel|
   # This query can get the uploads id
-  channel = youtube.list_channels('contentDetails', id: channel_id)
+  channel = youtube.list_channels('contentDetails', id: current_channel.id)
   uploads_id = channel.items.first.content_details.related_playlists.uploads
-  play_list_items_result = youtube.list_playlist_items('snippet', playlist_id: uploads_id, max_results: 25)
-  write_json("list-playlist-items-#{channel_id}", play_list_items_result)
+  play_list_items_result = youtube.list_playlist_items('snippet', playlist_id: uploads_id, max_results: current_channel.max_results)
+  write_json("list-playlist-items-#{current_channel.id}", play_list_items_result)
   objects = play_list_items_result.items.select do |item|
-    item.snippet.title =~ /#{football_regex}/ || item.snippet.title =~ /#{volleyball_regex}/
+    return true if current_channel.filter.nil?
+
+    item.snippet.title =~ /#{current_channel.filter}/ 
   end
   objects.each do |object|
     current_items = get_playlist_items(youtube, highlights_id)
+    current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
 
-    # Add check for exists in playlist here
-    
-    playlist_item = { 
-      snippet: { 
-        resource_id: object.snippet.resource_id, 
-        playlist_id: highlights_id,
-        position: get_position(current_items, object)
+    get_position(current_items, object)
+    if current_items_video_ids.include?(object.snippet.resource_id.video_id)
+      puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists"
+    else
+      playlist_item = { 
+        snippet: { 
+          resource_id: object.snippet.resource_id, 
+          playlist_id: highlights_id,
+          position: get_position(current_items, object)
+        }
       }
-    }
-    youtube.insert_playlist_item('snippet', playlist_item)
+      puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
+      youtube.insert_playlist_item('snippet', playlist_item)
+    end
   end
 end
