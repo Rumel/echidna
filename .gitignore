@@ -1,2 +1,5 @@
-client_secret.json
 .bundle/ruby
+.env
+client_secrets.json
+credentials.yaml
+json/
