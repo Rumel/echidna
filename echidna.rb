@@ -70,6 +70,33 @@ volleyball_regex = "((Volleyball).*(Highlights))|((Highlights).*(Volleyball))"
 
 highlights_id = "PLdP6kCUEAT1_PZxWWvTGsWi-YMw1bVGl2"
 
+def get_playlist_items(youtube, playlist_id)
+  playlist_items = []
+  page_token = nil
+  loop do
+    result = youtube.list_playlist_items('snippet', playlist_id: playlist_id, page_token: page_token)
+    playlist_items += result.items
+    page_token = result.next_page_token
+    break if page_token.nil?
+  end
+  playlist_items
+end
+
+def get_position(current_items, item)
+  return 0 if current_items.length == 0
+
+  times = current_items.map { |i| i.snippet.published_at }
+
+  found = times.find { |i| item.snippet.published_at < i }
+
+  if found
+    times.index(found)
+  else
+    current_items.length
+  end
+end
+
+# snippet.position can be used
 channels.each do |channel_id|
   # This query can get the uploads id
   channel = youtube.list_channels('contentDetails', id: channel_id)
@@ -80,6 +107,17 @@ channels.each do |channel_id|
     item.snippet.title =~ /#{football_regex}/ || item.snippet.title =~ /#{volleyball_regex}/
   end
   objects.each do |object|
-    youtube.insert_playlist_item('snippet', { snippet: { resource_id: object.snippet.resource_id, playlist_id: highlights_id } })
+    current_items = get_playlist_items(youtube, highlights_id)
+
+    # Add check for exists in playlist here
+    
+    playlist_item = { 
+      snippet: { 
+        resource_id: object.snippet.resource_id, 
+        playlist_id: highlights_id,
+        position: get_position(current_items, object)
+      }
+    }
+    youtube.insert_playlist_item('snippet', playlist_item)
   end
 end
