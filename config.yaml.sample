@@ -1,0 +1,10 @@
+---
+  playlists:
+    - name: Highlights
+      id: PLdP6kCUEAT1_PZxWWvTGsWi-YMw1bVGl2
+  channels:
+    - name: Huskers
+      id: UCMqWeJDl7yjblwPKVNo4XfA
+      filter: ((Football).*(Highlights))|((Highlights).*(Football))|((Volleyball).*(Highlights))|((Highlights).*(Volleyball))|((Basketball).*(Highlights))|((Highlights).*(Basketball)) 
+      max_results: 25
+      playlist_id: PLdP6kCUEAT1_PZxWWvTGsWi-YMw1bVGl2

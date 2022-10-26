@@ -3,50 +3,12 @@ require 'pry'
 require 'json'
 require 'time'
 require_relative './youtube_service.rb'
-require_relative './models/channel.rb'
-
-highlights_id = "PLdP6kCUEAT1_PZxWWvTGsWi-YMw1bVGl2"
+require_relative './config.rb'
 
 youtube = YoutubeService.instance
+config = Config.new
 
-channels = [
-  Channel.new(
-    name: "Huskers", 
-    id: "UCMqWeJDl7yjblwPKVNo4XfA",
-    filter: "((Football).*(Highlights))|((Highlights).*(Football))|((Volleyball).*(Highlights))|((Highlights).*(Volleyball))|((Basketball).*(Highlights))|((Highlights).*(Basketball))",
-    max_results: 25
-  ),
-  Channel.new(
-    name: "NHL",
-    id: "UCqFMzb-4AUf6WAIbl132QKA",
-    filter: "(Blues).*(Highlights)",
-    max_results: 50
-  ),
-  Channel.new(
-    name: "Cardinals",
-    id: "UCwaMqLYzbyp2IbFgcF_s5Og",
-    filter: "Highlights",
-    max_results: 25
-  ),
-  Channel.new(
-    name: "MatthewLovesBall",
-    id: "UC4GNCKohtEHRccrxKQiDJNg",
-    filter: "Nebraska",
-    max_results: 50
-  ),
-  Channel.new(
-    name: "Formula 1",
-    id: "UCB_qr75-ydFVKSF9Dmo6izg",
-    filter: "Highlights",
-    max_results: 25
-  ),
-  Channel.new(
-    name: "Liverpool FC",
-    id: "UC9LQwHZoucFT94I2h6JOcjw",
-    filter: "HIGHLIGHTS",
-    max_results: 25
-  )
-]
+channels = config.load_channels
 
 def get_position(current_items, item)
   return 0 if current_items.length == 0
@@ -71,11 +33,11 @@ channels.each do |current_channel|
   objects = play_list_items_result.items.select do |item|
     return true if current_channel.filter.nil?
 
-    item.snippet.title =~ /#{current_channel.filter}/ 
+    item.snippet.title.match(/#{current_channel.filter}/)
   end
 
   objects.each do |object|
-    current_items = youtube.get_all_playlist_items(highlights_id)
+    current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
     current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
 
     get_position(current_items, object)
