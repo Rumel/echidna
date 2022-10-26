@@ -8,10 +8,12 @@ config = Config.new
 
 channels = config.load_channels
 
-def get_position(current_items, item)
+def get_position(youtube, current_items, item)
   return 0 if current_items.length == 0
 
-  times = current_items.map { |i| i.snippet.published_at }
+  times = current_items.map do |i| 
+    youtube.get_video(i.snippet.resource_id.video_id).snippet.published_at
+  end
 
   found = times.find { |i| item.snippet.published_at < i }
 
@@ -36,7 +38,7 @@ channels.each do |current_channel|
     current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
     current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
 
-    get_position(current_items, object)
+    get_position(youtube, current_items, object)
 
     if current_items_video_ids.include?(object.snippet.resource_id.video_id)
       puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists"
@@ -44,8 +46,8 @@ channels.each do |current_channel|
       playlist_item = { 
         snippet: { 
           resource_id: object.snippet.resource_id, 
-          playlist_id: highlights_id,
-          position: get_position(current_items, object)
+          playlist_id: current_channel.playlist_id,
+          position: get_position(youtube, current_items, object)
         }
       }
       puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"

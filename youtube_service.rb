@@ -6,7 +6,6 @@ require 'time'
 
 class YoutubeService
   @instance = nil
-  @youtube = nil
 
   # OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
   OOB_URI = 'http://localhost'
@@ -44,6 +43,7 @@ class YoutubeService
   def initialize
     @youtube = Google::Apis::YoutubeV3::YouTubeService.new
     @youtube.authorization = user_credentials_for(Google::Apis::YoutubeV3::AUTH_YOUTUBE)
+    @videos = {}
   end
 
   def self.instance
@@ -52,6 +52,10 @@ class YoutubeService
 
   def youtube
     @youtube
+  end
+  
+  def videos
+    @videos
   end
 
   def write_json(partial_filename, data)
@@ -94,5 +98,9 @@ class YoutubeService
 
   def insert_playlist_item(item)
     youtube.insert_playlist_item('snippet', item)
+  end
+
+  def get_video(video_id)
+    videos[video_id] ||= youtube.list_videos(['snippet', 'contentDetails'], id: video_id).items.first
   end
 end
