@@ -42,13 +42,6 @@ end
 youtube = Google::Apis::YoutubeV3::YouTubeService.new
 youtube.authorization = user_credentials_for(Google::Apis::YoutubeV3::AUTH_YOUTUBE)
 
-# playlists = youtube.list_playlists('snippet', mine: true)
-# puts JSON.pretty_generate(playlists)
-# videos = youtube.list_videos('snippet', id: 'J9gdbUdogbY')
-# puts videos.inspect
-# channel = youtube.list_channels('snippet', id: 'UCTaLHBpw8mBOU_O3DlJFrhA')
-# puts JSON.pretty_generate(channel)
-
 def write_json(partial_filename, data)
   File.open("json/#{partial_filename}-#{Time.now.utc.iso8601}.json", 'w') do |f|
     f.write(JSON.pretty_generate(data))
