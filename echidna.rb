@@ -22,9 +22,7 @@ def get_position(current_items, item)
   end
 end
 
-# snippet.position can be used
 channels.each do |current_channel|
-  # This query can get the uploads id
   uploads_id = youtube.get_channel_uploads_id(current_channel.id)
   play_list_items_result = youtube.list_playlist_items(uploads_id, current_channel.max_results)
 
