@@ -1,7 +1,5 @@
 require 'dotenv/load'
 require 'pry'
-require 'json'
-require 'time'
 require_relative './youtube_service.rb'
 require_relative './config.rb'
 
