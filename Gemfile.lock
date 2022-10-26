@@ -148,6 +148,7 @@ GEM
       thor (~> 1.0)
       tilt (~> 2.0)
       yard (~> 0.9, >= 0.9.24)
+    sqlite3 (1.5.3-arm64-darwin)
     thor (1.2.1)
     tilt (2.0.11)
     trailblazer-option (0.1.2)
@@ -169,6 +170,7 @@ DEPENDENCIES
   pry
   sequel
   solargraph
+  sqlite3
 
 BUNDLED WITH
    2.3.7
