@@ -1,4 +1,3 @@
-require 'dotenv/load'
 require 'pry'
 require_relative './youtube_service.rb'
 require_relative './config.rb'
