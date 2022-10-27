@@ -66,7 +66,7 @@ class YoutubeService
   end
 
   def list_playlists_mine
-    result = youtube.list_playlists('snippet', mine: true)
+    result = youtube.list_playlists('snippet', mine: true, max_results: 50)
     write_json(__method__, result)
     result
   end
@@ -102,5 +102,13 @@ class YoutubeService
 
   def get_video(video_id)
     videos[video_id] ||= youtube.list_videos(['snippet', 'contentDetails'], id: video_id).items.first
+  end
+
+  # Expensive query
+  # Available so I can get channel ids
+  def search(query)
+    result = youtube.list_searches('snippet', q: query, max_results: 25)
+    write_json(__method__, result)
+    result
   end
 end

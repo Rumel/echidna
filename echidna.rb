@@ -7,18 +7,49 @@ youtube = YoutubeService.instance
 config = Config.new
 
 channels = config.load_channels
+playlists = config.load_playlists
 
-def get_position(youtube, current_items, item)
+def get_position(youtube, selected_playlist, current_items, item)
   return 0 if current_items.length == 0
 
-  times = current_items.map do |i| 
-    youtube.get_video(i.snippet.resource_id.video_id).snippet.published_at
+  videos = current_items.map do |i| 
+    video = youtube.get_video(i.snippet.resource_id.video_id)
+
+    {
+      channel_title: video.snippet.channel_title,
+      published_at: video.snippet.published_at 
+    }
   end
 
-  found = times.find { |i| item.snippet.published_at < i }
+  found = nil
+  after_found = false
+  if selected_playlist.order == "title"
+    channel_videos = videos.select { |v| v[:channel_title] == item.snippet.channel_title }
+
+    if channel_videos.length > 0
+      # Other videos are already inserted for the channel
+      found = videos.find { |i| item.snippet.published_at < i[:published_at] }
+      # need to handle the case where video is the newest
+      if !found
+        found = videos.last
+        after_found = true
+      end
+    else
+      # First video of title in list
+      # It just needs to be inserted before the other channels
+      found = videos.find { |i| item.snippet.channel_title < i[:channel_title] }
+    end
+  elsif selected_playlist.order == "date"
+    found = videos.find { |i| item.snippet.published_at < i[:published_at] }
+  end
 
   if found
-    times.index(found)
+    index = videos.index(found)
+    if after_found
+      index += 1
+    else
+      index
+    end
   else
     current_items.length
   end
@@ -29,16 +60,19 @@ channels.each do |current_channel|
   play_list_items_result = youtube.list_playlist_items(uploads_id, current_channel.max_results)
 
   objects = play_list_items_result.items.select do |item|
-    return true if current_channel.filter.nil?
-
-    item.snippet.title.match(/#{current_channel.filter}/)
+    if current_channel.filter.nil?
+      true
+    else
+      item.snippet.title.match(/#{current_channel.filter}/)
+    end
   end
 
   objects.each do |object|
     current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
     current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
+    selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id } 
 
-    get_position(youtube, current_items, object)
+    get_position(youtube, selected_playlist, current_items, object)
 
     if current_items_video_ids.include?(object.snippet.resource_id.video_id)
       puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists"
@@ -47,7 +81,7 @@ channels.each do |current_channel|
         snippet: { 
           resource_id: object.snippet.resource_id, 
           playlist_id: current_channel.playlist_id,
-          position: get_position(youtube, current_items, object)
+          position: get_position(youtube, selected_playlist, current_items, object)
         }
       }
       puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"

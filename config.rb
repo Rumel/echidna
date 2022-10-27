@@ -1,5 +1,6 @@
 require "yaml"
 require_relative "./models/channel.rb"
+require_relative "./models/playlist.rb"
 
 class Config
   def config_file
@@ -26,6 +27,20 @@ class Config
         filter: channel["filter"],
         max_results: channel["max_results"] || 25,
         playlist_id: channel["playlist_id"]
+      )
+    end
+  end
+
+  def load_playlists
+    retrun [] unless config_exists?
+
+    config = YAML.load_file(config_file)
+
+    config["playlists"].map do |playlist|
+      Playlist.new(
+        id: playlist["id"],
+        title: playlist["title"],
+        order: playlist["order"],
       )
     end
   end
