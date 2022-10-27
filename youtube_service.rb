@@ -80,6 +80,7 @@ class YoutubeService
       page_token = result.next_page_token
       break if page_token.nil?
     end
+    write_json(__method__, playlist_items)
     playlist_items
   end
 
