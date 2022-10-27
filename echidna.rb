@@ -2,23 +2,34 @@ require 'dotenv/load'
 require 'pry'
 require_relative './youtube_service.rb'
 require_relative './config.rb'
+require_relative './db.rb'
 
 youtube = YoutubeService.instance
 config = Config.new
+db = DatabaseService.new
+
+db.run_migrations
 
 channels = config.load_channels
 playlists = config.load_playlists
 
-def get_position(youtube, selected_playlist, current_items, item)
+def get_position(db, youtube, selected_playlist, current_items, item)
   return 0 if current_items.length == 0
 
-  videos = current_items.map do |i| 
-    video = youtube.get_video(i.snippet.resource_id.video_id)
-
-    {
-      channel_title: video.snippet.channel_title,
-      published_at: video.snippet.published_at 
-    }
+  videos = current_items.map do |i|
+    db_video = db.get_video(i.snippet.resource_id.video_id)
+    if db_video
+      {
+        channel_title: db_video[:channel_title],
+        published_at: db_video[:published_at], 
+      }
+    else
+      video = youtube.get_video(i.snippet.resource_id.video_id)
+      {
+        channel_title: video.snippet.channel_title,
+        published_at: video.snippet.published_at 
+      }
+    end
   end
 
   found = nil
@@ -68,24 +79,31 @@ channels.each do |current_channel|
   end
 
   objects.each do |object|
+    exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil? 
+    if exists_in_db
+      puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
+      next
+    end
+
     current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
     current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
     selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id } 
 
-    get_position(youtube, selected_playlist, current_items, object)
-
-    if current_items_video_ids.include?(object.snippet.resource_id.video_id)
-      puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists"
+    exists_in_playlist = current_items_video_ids.include?(object.snippet.resource_id.video_id)
+    if exists_in_playlist 
+      puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
+      db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
     else
       playlist_item = { 
         snippet: { 
           resource_id: object.snippet.resource_id, 
           playlist_id: current_channel.playlist_id,
-          position: get_position(youtube, selected_playlist, current_items, object)
+          position: get_position(db, youtube, selected_playlist, current_items, object)
         }
       }
       puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
       youtube.insert_playlist_item(playlist_item)
+      db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
     end
   end
 end
