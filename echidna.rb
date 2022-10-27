@@ -38,10 +38,10 @@ def get_position(db, youtube, selected_playlist, current_items, item)
 
     if channel_videos.length > 0
       # Other videos are already inserted for the channel
-      found = videos.find { |i| item.snippet.published_at < i[:published_at] }
+      found = channel_videos.find { |i| item.snippet.published_at < i[:published_at] }
       # need to handle the case where video is the newest
       if !found
-        found = videos.last
+        found = channel_videos.last
         after_found = true
       end
     else
