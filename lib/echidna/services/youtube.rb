@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'google/apis/youtube_v3'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
@@ -22,7 +24,7 @@ class YoutubeService
     FileUtils.mkdir_p(File.dirname(token_store_path))
 
     client_id = Google::Auth::ClientId.from_file(client_secrets_path)
-    token_store = Google::Auth::Stores::FileTokenStore.new(:file => token_store_path)
+    token_store = Google::Auth::Stores::FileTokenStore.new(file: token_store_path)
     authorizer = Google::Auth::UserAuthorizer.new(client_id, scope, token_store)
 
     user_id = 'default'
@@ -30,12 +32,13 @@ class YoutubeService
     credentials = authorizer.get_credentials(user_id)
     if credentials.nil?
       url = authorizer.get_authorization_url(base_url: OOB_URI)
-      puts "Open the following URL in your browser and authorize the application."
+      puts 'Open the following URL in your browser and authorize the application.'
       puts url
-      puts "Enter the authorization code:"
+      puts 'Enter the authorization code:'
       code = gets.chomp
       credentials = authorizer.get_and_store_credentials_from_code(
-        user_id: user_id, code: code, base_url: OOB_URI)
+        user_id:, code:, base_url: OOB_URI
+      )
     end
     credentials
   end
@@ -47,16 +50,10 @@ class YoutubeService
   end
 
   def self.instance
-    @instance ||= self.new
+    @instance ||= new
   end
 
-  def youtube
-    @youtube
-  end
-  
-  def videos
-    @videos
-  end
+  attr_reader :youtube, :videos
 
   def write_json(partial_filename, data)
     Dir.mkdir('json') unless Dir.exist?('json')
@@ -75,7 +72,7 @@ class YoutubeService
     playlist_items = []
     page_token = nil
     loop do
-      result = youtube.list_playlist_items('snippet', playlist_id: playlist_id, page_token: page_token)
+      result = youtube.list_playlist_items('snippet', playlist_id:, page_token:)
       playlist_items += result.items
       page_token = result.next_page_token
       break if page_token.nil?
@@ -92,7 +89,7 @@ class YoutubeService
   end
 
   def list_playlist_items(playlist_id, max_results = 25)
-    result = youtube.list_playlist_items('snippet', playlist_id: playlist_id, max_results: max_results)
+    result = youtube.list_playlist_items('snippet', playlist_id:, max_results:)
     write_json(__method__, result)
     result
   end
@@ -102,7 +99,7 @@ class YoutubeService
   end
 
   def get_video(video_id)
-    videos[video_id] ||= youtube.list_videos(['snippet', 'contentDetails'], id: video_id).items.first
+    videos[video_id] ||= youtube.list_videos(%w[snippet contentDetails], id: video_id).items.first
   end
 
   # Expensive query

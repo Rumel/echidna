@@ -5,6 +5,8 @@ source 'https://rubygems.org'
 gem 'google-apis-youtube_v3', '~> 0.24.0'
 gem 'pry'
 gem 'pry-byebug'
+gem 'rubocop', require: false
+gem 'rubocop-sequel'
 gem 'sequel'
 gem 'solargraph'
 gem 'sqlite3'

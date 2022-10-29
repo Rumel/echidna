@@ -1,17 +1,17 @@
-require "yaml"
-require_relative "../models/channel.rb"
-require_relative "../models/playlist.rb"
+# frozen_string_literal: true
+
+require 'yaml'
+require_relative '../models/channel'
+require_relative '../models/playlist'
 
 class Config
   def config_file
-    "./config.yaml"
+    './config.yaml'
   end
 
   def config_exists?
     result = File.exist?(config_file)
-    if !result
-      puts "Config file #{config_file} does not exist"
-    end
+    puts "Config file #{config_file} does not exist" unless result
     result
   end
 
@@ -20,14 +20,13 @@ class Config
 
     config = YAML.load_file(config_file)
 
-    binding.pry
-    config["channels"].map do |channel|
+    config['channels'].map do |channel|
       Channel.new(
-        name: channel["name"],
-        id: channel["id"],
-        filter: channel["filter"],
-        max_results: channel["max_results"] || 25,
-        playlist_id: channel["playlist_id"]
+        name: channel['name'],
+        id: channel['id'],
+        filter: channel['filter'],
+        max_results: channel['max_results'] || 25,
+        playlist_id: channel['playlist_id']
       )
     end
   end
@@ -37,11 +36,11 @@ class Config
 
     config = YAML.load_file(config_file)
 
-    config["playlists"].map do |playlist|
+    config['playlists'].map do |playlist|
       Playlist.new(
-        id: playlist["id"],
-        title: playlist["title"],
-        order: playlist["order"],
+        id: playlist['id'],
+        title: playlist['title'],
+        order: playlist['order']
       )
     end
   end

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'pry'
-require_relative './echidna/services/youtube.rb'
-require_relative './echidna/services/config.rb'
-require_relative './echidna/services/db.rb'
+require_relative './echidna/services/youtube'
+require_relative './echidna/services/config'
+require_relative './echidna/services/db'
 
 youtube = YoutubeService.instance
 config = Config.new
@@ -13,34 +15,35 @@ channels = config.load_channels
 playlists = config.load_playlists
 
 def get_position(db, youtube, selected_playlist, current_items, item)
-  return 0 if current_items.length == 0
+  return 0 if current_items.length.zero?
 
   videos = current_items.map do |i|
     db_video = db.get_video(i.snippet.resource_id.video_id)
     if db_video
       {
         channel_title: db_video[:channel_title],
-        published_at: db_video[:published_at], 
+        published_at: db_video[:published_at]
       }
     else
       video = youtube.get_video(i.snippet.resource_id.video_id)
       {
         channel_title: video.snippet.channel_title,
-        published_at: video.snippet.published_at 
+        published_at: video.snippet.published_at
       }
     end
   end
 
   found = nil
   after_found = false
-  if selected_playlist.order == "title"
+  case selected_playlist.order
+  when 'title'
     channel_videos = videos.select { |v| v[:channel_title] == item.snippet.channel_title }
 
-    if channel_videos.length > 0
+    if channel_videos.length.positive?
       # Other videos are already inserted for the channel
       found = channel_videos.find { |i| item.snippet.published_at < i[:published_at] }
       # need to handle the case where video is the newest
-      if !found
+      unless found
         found = channel_videos.last
         after_found = true
       end
@@ -49,7 +52,7 @@ def get_position(db, youtube, selected_playlist, current_items, item)
       # It just needs to be inserted before the other channels
       found = videos.find { |i| item.snippet.channel_title < i[:channel_title] }
     end
-  elsif selected_playlist.order == "date"
+  when 'date'
     found = videos.find { |i| item.snippet.published_at < i[:published_at] }
   end
 
@@ -78,7 +81,7 @@ channels.each do |current_channel|
   end
 
   objects.each do |object|
-    exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil? 
+    exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil?
     if exists_in_db
       puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
       next
@@ -86,23 +89,22 @@ channels.each do |current_channel|
 
     current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
     current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
-    selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id } 
+    selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id }
 
     exists_in_playlist = current_items_video_ids.include?(object.snippet.resource_id.video_id)
-    if exists_in_playlist 
+    if exists_in_playlist
       puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
-      db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
     else
-      playlist_item = { 
-        snippet: { 
-          resource_id: object.snippet.resource_id, 
+      playlist_item = {
+        snippet: {
+          resource_id: object.snippet.resource_id,
           playlist_id: current_channel.playlist_id,
           position: get_position(db, youtube, selected_playlist, current_items, object)
         }
       }
       puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
       youtube.insert_playlist_item(playlist_item)
-      db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
     end
+    db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
   end
 end
