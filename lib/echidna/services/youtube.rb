@@ -7,6 +7,8 @@ require 'json'
 require 'time'
 
 class YoutubeService
+  attr_reader :youtube, :videos
+
   @instance = nil
 
   # OOB_URI = 'urn:ietf:wg:oauth:2.0:oob'
@@ -52,8 +54,6 @@ class YoutubeService
   def self.instance
     @instance ||= new
   end
-
-  attr_reader :youtube, :videos
 
   def write_json(partial_filename, data)
     Dir.mkdir('json') unless Dir.exist?('json')
