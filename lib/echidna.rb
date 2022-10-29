@@ -6,7 +6,7 @@ require_relative './echidna/services/config'
 require_relative './echidna/services/db'
 
 youtube = YoutubeService.instance
-config = Config.new
+config = ConfigService.new
 db = DatabaseService.new
 
 db.run_migrations

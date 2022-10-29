@@ -4,7 +4,7 @@ require 'yaml'
 require_relative '../models/channel'
 require_relative '../models/playlist'
 
-class Config
+class ConfigService
   def config_file
     './config.yaml'
   end
