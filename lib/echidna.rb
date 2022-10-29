@@ -1,7 +1,7 @@
 require 'pry'
-require_relative './youtube_service.rb'
-require_relative './config.rb'
-require_relative './db.rb'
+require_relative './echidna/services/youtube.rb'
+require_relative './echidna/services/config.rb'
+require_relative './echidna/services/db.rb'
 
 youtube = YoutubeService.instance
 config = Config.new

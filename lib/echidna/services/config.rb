@@ -1,6 +1,6 @@
 require "yaml"
-require_relative "./models/channel.rb"
-require_relative "./models/playlist.rb"
+require_relative "../models/channel.rb"
+require_relative "../models/playlist.rb"
 
 class Config
   def config_file
@@ -20,6 +20,7 @@ class Config
 
     config = YAML.load_file(config_file)
 
+    binding.pry
     config["channels"].map do |channel|
       Channel.new(
         name: channel["name"],
