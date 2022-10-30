@@ -69,6 +69,19 @@ GEM
     reverse_markdown (2.1.1)
       nokogiri
     rexml (3.2.5)
+    rspec (3.12.0)
+      rspec-core (~> 3.12.0)
+      rspec-expectations (~> 3.12.0)
+      rspec-mocks (~> 3.12.0)
+    rspec-core (3.12.0)
+      rspec-support (~> 3.12.0)
+    rspec-expectations (3.12.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-mocks (3.12.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.12.0)
+    rspec-support (3.12.0)
     rubocop (1.37.0)
       json (~> 2.3)
       parallel (~> 1.10)
@@ -124,6 +137,7 @@ DEPENDENCIES
   google-apis-youtube_v3 (~> 0.24.0)
   pry
   pry-byebug
+  rspec
   rubocop
   rubocop-sequel
   sequel

@@ -11,3 +11,7 @@ gem 'sequel'
 gem 'solargraph'
 gem 'sqlite3'
 gem 'yaml'
+
+group :development, :test do
+  gem 'rspec'
+end
