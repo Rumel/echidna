@@ -71,7 +71,7 @@ module Echidna
       if found
         index = videos.index(found)
         if after_found
-          index += 1
+          index + 1
         else
           index
         end
