@@ -26,10 +26,8 @@ module Echidna
       config.load_playlists
     end
 
-    def get_position(selected_playlist, current_items, item)
-      return 0 if current_items.length.zero?
-
-      videos = current_items.map do |i|
+    def map_videos(items)
+      items.map do |i|
         db_video = db.get_video(i.snippet.resource_id.video_id)
         if db_video
           {
@@ -43,40 +41,6 @@ module Echidna
             published_at: video.snippet.published_at
           }
         end
-      end
-
-      found = nil
-      after_found = false
-      case selected_playlist.order
-      when 'title'
-        channel_videos = videos.select { |v| v[:channel_title] == item.snippet.channel_title }
-
-        if channel_videos.length.positive?
-          # Other videos are already inserted for the channel
-          found = channel_videos.find { |i| item.snippet.published_at < i[:published_at] }
-          # need to handle the case where video is the newest
-          unless found
-            found = channel_videos.last
-            after_found = true
-          end
-        else
-          # First video of title in list
-          # It just needs to be inserted before the other channels
-          found = videos.find { |i| item.snippet.channel_title < i[:channel_title] }
-        end
-      when 'date'
-        found = videos.find { |i| item.snippet.published_at < i[:published_at] }
-      end
-
-      if found
-        index = videos.index(found)
-        if after_found
-          index + 1
-        else
-          index
-        end
-      else
-        current_items.length
       end
     end
 
@@ -112,7 +76,7 @@ module Echidna
               snippet: {
                 resource_id: object.snippet.resource_id,
                 playlist_id: current_channel.playlist_id,
-                position: get_position(selected_playlist, current_items, object)
+                position: get_position(selected_playlist, map_videos(current_items), object)
               }
             }
             puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
@@ -120,6 +84,46 @@ module Echidna
           end
           db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
         end
+      end
+    end
+
+    private
+
+    def get_position(selected_playlist, videos, item)
+      return 0 if videos.length.zero?
+
+      found = nil
+      after_found = false
+      case selected_playlist.order
+      when 'title'
+        channel_videos = videos.select { |v| v[:channel_title] == item.snippet.channel_title }
+
+        if channel_videos.length.positive?
+          # Other videos are already inserted for the channel
+          found = channel_videos.find { |i| item.snippet.published_at < i[:published_at] }
+          # need to handle the case where video is the newest
+          unless found
+            found = channel_videos.last
+            after_found = true
+          end
+        else
+          # First video of title in list
+          # It just needs to be inserted before the other channels
+          found = videos.find { |i| item.snippet.channel_title < i[:channel_title] }
+        end
+      when 'date'
+        found = videos.find { |i| item.snippet.published_at < i[:published_at] }
+      end
+
+      if found
+        index = videos.index(found)
+        if after_found
+          index + 1
+        else
+          index
+        end
+      else
+        videos.length
       end
     end
   end
