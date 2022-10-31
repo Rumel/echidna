@@ -14,4 +14,5 @@ gem 'yaml'
 
 group :development, :test do
   gem 'rspec'
+  gem 'simplecov', require: false
 end
