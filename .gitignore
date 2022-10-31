@@ -6,3 +6,4 @@ json/
 config.yaml
 youtube.db
 coverage
+logs/

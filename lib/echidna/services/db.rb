@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sequel'
+require_relative './logger'
 
 module Echidna
   class DatabaseService
@@ -8,6 +9,10 @@ module Echidna
 
     def initialize
       @db = Sequel.sqlite('youtube.db')
+    end
+
+    def logger
+      @logger ||= LogService.new.logger
     end
 
     def run_migrations
@@ -32,7 +37,7 @@ module Echidna
     end
 
     def insert_video(video_id, channel_title, published_at)
-      puts "DB: Inserting video #{video_id}"
+      logger.info "DB: Inserting video #{video_id}"
       db[:videos].insert(video_id:, channel_title:, published_at:)
     end
   end

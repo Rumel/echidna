@@ -3,6 +3,7 @@
 require_relative './config'
 require_relative './youtube'
 require_relative './db'
+require_relative './logger'
 
 module Echidna
   class UpdateService
@@ -16,6 +17,10 @@ module Echidna
 
     def config
       @config ||= ConfigService.new
+    end
+
+    def logger
+      @logger ||= LogService.new.logger
     end
 
     def channels
@@ -60,7 +65,7 @@ module Echidna
         objects.each do |object|
           exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil?
           if exists_in_db
-            puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
+            logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
             next
           end
 
@@ -70,7 +75,7 @@ module Echidna
 
           exists_in_playlist = current_items_video_ids.include?(object.snippet.resource_id.video_id)
           if exists_in_playlist
-            puts "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
+            logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
           else
             playlist_item = {
               snippet: {
@@ -79,7 +84,7 @@ module Echidna
                 position: get_position(selected_playlist, map_videos(current_items), object)
               }
             }
-            puts "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
+            logger.info "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
             youtube.insert_playlist_item(playlist_item)
           end
           db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)

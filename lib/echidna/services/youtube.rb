@@ -5,6 +5,7 @@ require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'json'
 require 'time'
+require_relative './logger'
 
 module Echidna
   class YoutubeService
@@ -23,6 +24,10 @@ module Echidna
       './client_secrets.json'
     end
 
+    def logger
+      @logger ||= LogService.new.logger
+    end
+
     def user_credentials_for(scope)
       FileUtils.mkdir_p(File.dirname(token_store_path))
 
@@ -35,9 +40,9 @@ module Echidna
       credentials = authorizer.get_credentials(user_id)
       if credentials.nil?
         url = authorizer.get_authorization_url(base_url: OOB_URI)
-        puts 'Open the following URL in your browser and authorize the application.'
-        puts url
-        puts 'Enter the authorization code:'
+        logger.info 'Open the following URL in your browser and authorize the application.'
+        logger.info url
+        logger.info 'Enter the authorization code:'
         code = gets.chomp
         credentials = authorizer.get_and_store_credentials_from_code(
           user_id:, code:, base_url: OOB_URI

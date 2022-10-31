@@ -3,16 +3,21 @@
 require 'yaml'
 require_relative '../models/channel'
 require_relative '../models/playlist'
+require_relative './logger'
 
 module Echidna
   class ConfigService
+    def logger
+      @logger ||= LogService.new.logger
+    end
+
     def config_file
       './config.yaml'
     end
 
     def config_exists?
       result = File.exist?(config_file)
-      puts "Config file #{config_file} does not exist" unless result
+      logger.error "Config file #{config_file} does not exist" unless result
       result
     end
 
