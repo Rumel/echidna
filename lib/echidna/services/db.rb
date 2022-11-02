@@ -12,7 +12,7 @@ module Echidna
     end
 
     def logger
-      @logger ||= LogService.new.logger
+      @logger ||= LogService.new
     end
 
     def run_migrations

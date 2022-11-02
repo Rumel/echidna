@@ -8,7 +8,7 @@ require_relative './logger'
 module Echidna
   class ConfigService
     def logger
-      @logger ||= LogService.new.logger
+      @logger ||= LogService.new
     end
 
     def config_file

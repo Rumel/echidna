@@ -25,7 +25,7 @@ module Echidna
     end
 
     def logger
-      @logger ||= LogService.new.logger
+      @logger ||= LogService.new
     end
 
     def user_credentials_for(scope)
