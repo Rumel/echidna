@@ -1,9 +1,10 @@
 .bundle/ruby
 .env
+.vscode
 client_secrets.json
+config.yaml
+coverage
 credentials.yaml
 json/
-config.yaml
-youtube.db
-coverage
 logs/
+youtube.db
