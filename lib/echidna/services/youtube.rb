@@ -121,7 +121,7 @@ module Echidna
     private
 
     def write_json?
-      ENV['DEBUG'].to_s.downcase == 'true'
+      ENV['ECHIDNA_DEBUG'].to_s.downcase == 'true'
     end
   end
 end
