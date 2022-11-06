@@ -62,6 +62,8 @@ module Echidna
     end
 
     def write_json(partial_filename, data)
+      return unless write_json?
+
       Dir.mkdir('json') unless Dir.exist?('json')
       File.open("./json/#{partial_filename}-#{Time.now.utc.iso8601}.json", 'w') do |f|
         f.write(JSON.pretty_generate(data))
@@ -114,6 +116,12 @@ module Echidna
       result = youtube.list_searches('snippet', q: query, max_results: 25)
       write_json(__method__, result)
       result
+    end
+
+    private
+
+    def write_json?
+      ENV['DEBUG'].to_s.downcase == 'true'
     end
   end
 end
