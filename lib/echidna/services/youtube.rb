@@ -118,6 +118,11 @@ module Echidna
       result
     end
 
+    def get_channel_id(query)
+      result = search query
+      result.items.map { |item| { channel_id: item.snippet.channel_id, channel_title: item.snippet.channel_title } }.uniq
+    end
+
     private
 
     def write_json?
