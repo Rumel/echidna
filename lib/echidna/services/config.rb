@@ -11,18 +11,37 @@ module Echidna
       @logger ||= LogService.new
     end
 
-    def config_file
-      './config.yaml'
+    def find_config_file
+      paths = []
+      paths << File.join(ENV['XDG_CONFIG_HOME'], 'echidna', 'config.yaml') if ENV['XDG_CONFIG_HOME']
+      paths << File.join(ENV['HOME'], '.config', 'echidna', 'config.yaml') if ENV['HOME']
+      paths << File.join(Dir.pwd, 'config.yaml')
+
+      found_path = nil
+      paths.each do |path|
+        next if found_path
+
+        found_path = path if File.exist?(path)
+      end
+
+      if found_path
+        found_path
+      else
+        logger.error 'Config file does not exist'
+        logger.error 'Looked in $XDG_CONFIG_HOME/echidna/config.yaml'
+        logger.error 'Looked in $HOME/echidna/config.yaml'
+        logger.error 'Looked in ./config.yaml'
+
+        nil
+      end
     end
 
-    def config_exists?
-      result = File.exist?(config_file)
-      logger.error "Config file #{config_file} does not exist" unless result
-      result
+    def config_file
+      @config_file ||= find_config_file
     end
 
     def load_channels
-      return [] unless config_exists?
+      return [] unless config_file
 
       config = YAML.load_file(config_file)
 
@@ -38,7 +57,7 @@ module Echidna
     end
 
     def load_playlists
-      retrun [] unless config_exists?
+      retrun [] unless config_file
 
       config = YAML.load_file(config_file)
 
