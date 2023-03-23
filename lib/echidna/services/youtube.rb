@@ -5,6 +5,7 @@ require 'googleauth'
 require 'googleauth/stores/file_token_store'
 require 'json'
 require 'time'
+require 'uri'
 require_relative './logger'
 
 module Echidna
@@ -42,8 +43,10 @@ module Echidna
         url = authorizer.get_authorization_url(base_url: OOB_URI)
         logger.info 'Open the following URL in your browser and authorize the application.'
         logger.info url
-        logger.info 'Enter the authorization code:'
-        code = gets.chomp
+        logger.info 'Enter the redirect url:'
+        # code = gets.chomp
+        uri = URI(gets.chomp)
+        code = URI.decode_www_form(uri.query).to_h['code']
         credentials = authorizer.get_and_store_credentials_from_code(
           user_id:, code:, base_url: OOB_URI
         )
