@@ -52,6 +52,12 @@ module Echidna
     def update_playlists
       channels.each do |current_channel|
         uploads_id = youtube.get_channel_uploads_id(current_channel.id)
+
+        unless uploads_id
+          puts "#{current_channel.id} does not exist anymore, please remove"
+          next
+        end
+
         play_list_items_result = youtube.list_playlist_items(uploads_id, current_channel.max_results)
 
         objects = play_list_items_result.items.select do |item|

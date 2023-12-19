@@ -96,7 +96,11 @@ module Echidna
     def get_channel_uploads_id(channel_id)
       result = youtube.list_channels('contentDetails', id: channel_id)
       write_json(__method__, result)
-      result.items.first.content_details.related_playlists.uploads
+      result = result.items.first
+
+      return nil unless result
+
+      result.content_details.related_playlists.uploads
     end
 
     def list_playlist_items(playlist_id, max_results = 25)
