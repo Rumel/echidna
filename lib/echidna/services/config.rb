@@ -59,7 +59,7 @@ module Echidna
     def load_playlists
       retrun [] unless config_file
 
-      config = YAML.load_file(config_file)
+      config = YAML.load_file(config_file, aliases: true)
 
       config['playlists'].map do |playlist|
         Playlist.new(

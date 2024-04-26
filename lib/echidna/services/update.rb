@@ -51,6 +51,8 @@ module Echidna
 
     def update_playlists
       channels.each do |current_channel|
+        logger.info "Current channel is #{current_channel.name}"
+
         uploads_id = youtube.get_channel_uploads_id(current_channel.id)
 
         unless uploads_id
