@@ -43,7 +43,7 @@ module Echidna
     def load_channels
       return [] unless config_file
 
-      config = YAML.load_file(config_file)
+      config = YAML.load_file(config_file, aliases: true)
 
       config['channels'].map do |channel|
         Channel.new(
