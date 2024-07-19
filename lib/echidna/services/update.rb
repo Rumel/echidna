@@ -51,51 +51,57 @@ module Echidna
 
     def update_playlists
       channels.each do |current_channel|
-        logger.info "Current channel is #{current_channel.name}"
+        begin
+          logger.info "Current channel is #{current_channel.name}"
 
-        uploads_id = youtube.get_channel_uploads_id(current_channel.id)
+          # uploads_id = youtube.get_channel_uploads_id(current_channel.id)
+          # https://stackoverflow.com/questions/71192605/how-do-i-get-youtube-shorts-from-youtube-api-data-v3
+          videos_id = current_channel.id.sub('UC', 'UULF') # Only grab the videos, no shorts
 
-        unless uploads_id
-          puts "#{current_channel.id} does not exist anymore, please remove"
-          next
-        end
+          # unless uploads_id
+          #   puts "#{current_channel.id} does not exist anymore, please remove"
+          #   next
+          # end
 
-        play_list_items_result = youtube.list_playlist_items(uploads_id, current_channel.max_results)
+          play_list_items_result = youtube.list_playlist_items(videos_id, current_channel.max_results)
 
-        objects = play_list_items_result.items.select do |item|
-          if current_channel.filter.nil?
-            true
-          else
-            item.snippet.title.match(/#{current_channel.filter}/)
-          end
-        end
-
-        objects.each do |object|
-          exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil?
-          if exists_in_db
-            logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
-            next
+          objects = play_list_items_result.items.select do |item|
+            if current_channel.filter.nil?
+              true
+            else
+              item.snippet.title.match(/#{current_channel.filter}/)
+            end
           end
 
-          current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
-          current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
-          selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id }
+          objects.each do |object|
+            exists_in_db = !db.get_video(object.snippet.resource_id.video_id).nil?
+            if exists_in_db
+              logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in the database"
+              next
+            end
 
-          exists_in_playlist = current_items_video_ids.include?(object.snippet.resource_id.video_id)
-          if exists_in_playlist
-            logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
-          else
-            playlist_item = {
-              snippet: {
-                resource_id: object.snippet.resource_id,
-                playlist_id: current_channel.playlist_id,
-                position: get_position(selected_playlist, map_videos(current_items), object)
+            current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
+            current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
+            selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id }
+
+            exists_in_playlist = current_items_video_ids.include?(object.snippet.resource_id.video_id)
+            if exists_in_playlist
+              logger.info "Skipping \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id} because it already exists in playlist"
+            else
+              playlist_item = {
+                snippet: {
+                  resource_id: object.snippet.resource_id,
+                  playlist_id: current_channel.playlist_id,
+                  position: get_position(selected_playlist, map_videos(current_items), object)
+                }
               }
-            }
-            logger.info "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
-            youtube.insert_playlist_item(playlist_item)
+              logger.info "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
+              youtube.insert_playlist_item(playlist_item)
+            end
+            db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
           end
-          db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
+        rescue Exception => e
+          logger.error "Error: #{e.message}"
         end
       end
     end
