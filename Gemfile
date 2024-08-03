@@ -15,6 +15,7 @@ gem 'solargraph'
 gem 'yaml'
 
 group :development, :test do
+  gem 'ruby-lsp'
   gem 'rspec'
   gem 'simplecov', require: false
 end
