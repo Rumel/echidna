@@ -54,22 +54,19 @@ module Echidna
         begin
           logger.info "Current channel is #{current_channel.name}"
 
-          # uploads_id = youtube.get_channel_uploads_id(current_channel.id)
-          # https://stackoverflow.com/questions/71192605/how-do-i-get-youtube-shorts-from-youtube-api-data-v3
-          videos_id = current_channel.id.sub('UC', 'UULF') # Only grab the videos, no shorts
+          play_list_items_result = youtube.list_videos_playlist_items(current_channel.id, current_channel.max_results)
+          live_playlist_items_result = youtube.list_live_playlist_items(current_channel.id, current_channel.max_results)
 
-          # unless uploads_id
-          #   puts "#{current_channel.id} does not exist anymore, please remove"
-          #   next
-          # end
+          objects = []
+          [play_list_items_result, live_playlist_items_result].each do |list|
+            next if list.nil?
 
-          play_list_items_result = youtube.list_playlist_items(videos_id, current_channel.max_results)
-
-          objects = play_list_items_result.items.select do |item|
-            if current_channel.filter.nil?
-              true
-            else
-              item.snippet.title.match(/#{current_channel.filter}/)
+            objects += list.items.select do |item|
+              if current_channel.filter.nil?
+                true
+              else
+                item.snippet.title.match(/#{current_channel.filter}/)
+              end
             end
           end
 

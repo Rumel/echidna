@@ -109,6 +109,23 @@ module Echidna
       result
     end
 
+    # Only grab videos, not shorts
+    # https://stackoverflow.com/questions/71192605/how-do-i-get-youtube-shorts-from-youtube-api-data-v3
+    def list_videos_playlist_items(playlist_id, max_results = 25)
+      videos_id = playlist_id.sub('UC', 'UULF')
+      list_playlist_items(videos_id, max_results)
+    rescue
+      nil
+    end
+
+    # Grab live videos if available
+    def list_live_playlist_items(playlist_id, max_results = 25)
+      live_id = playlist_id.sub('UC', 'UULV')
+      list_playlist_items(live_id, max_results)
+    rescue
+      nil
+    end
+
     def insert_playlist_item(item)
       youtube.insert_playlist_item('snippet', item)
     end
