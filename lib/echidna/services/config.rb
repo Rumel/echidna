@@ -65,7 +65,8 @@ module Echidna
         Playlist.new(
           id: playlist['id'],
           title: playlist['title'],
-          order: playlist['order']
+          order: playlist['order'],
+          time: playlist['time']
         )
       end
     end

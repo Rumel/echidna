@@ -114,7 +114,7 @@ module Echidna
     def list_videos_playlist_items(playlist_id, max_results = 25)
       videos_id = playlist_id.sub('UC', 'UULF')
       list_playlist_items(videos_id, max_results)
-    rescue
+    rescue StandardError
       nil
     end
 
@@ -122,12 +122,16 @@ module Echidna
     def list_live_playlist_items(playlist_id, max_results = 25)
       live_id = playlist_id.sub('UC', 'UULV')
       list_playlist_items(live_id, max_results)
-    rescue
+    rescue StandardError
       nil
     end
 
     def insert_playlist_item(item)
       youtube.insert_playlist_item('snippet', item)
+    end
+
+    def delete_playlist_item(item_id)
+      youtube.delete_playlist_item(item_id)
     end
 
     def get_video(video_id)

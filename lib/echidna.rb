@@ -11,4 +11,5 @@ logger.info 'Starting Echidna'
 db = Echidna::DatabaseService.new
 update = Echidna::UpdateService.new
 
-update.update_playlists
+update.add_videos_to_playlists
+update.remove_videos_from_playlists
