@@ -96,7 +96,7 @@ module Echidna
           end
           db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
         end
-      rescue Exception => e
+      rescue StandardError => e
         logger.error "Error: #{e.message}"
       end
     end
