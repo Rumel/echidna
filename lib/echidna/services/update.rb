@@ -50,6 +50,7 @@ module Echidna
     end
 
     def add_videos_to_playlists
+      count = 0
       channels.each do |current_channel|
         logger.info "Current channel is #{current_channel.name}"
 
@@ -95,15 +96,19 @@ module Echidna
             youtube.insert_playlist_item(playlist_item)
           end
           db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
+          count += 1
         end
       rescue StandardError => e
         logger.error "Error: #{e.message}"
       end
+
+      puts "Inserted #{count} videos into playlists"
     end
 
     def remove_videos_from_playlists
       time = Time.now
       playlists.each do |playlist|
+        count = 0
         next if playlist.time.nil?
 
         check_time = (time - playlist.time).to_i
@@ -118,10 +123,12 @@ module Echidna
           puts "Deleting #{item.snippet.title}"
           begin
             youtube.delete_playlist_item(item.id)
+            count += 1
           rescue StandardError => e
             logger.error "Error: #{e.message}"
           end
         end
+        puts "Deleted #{count} videos from #{playlist.title}"
       end
     end
 
