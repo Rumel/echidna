@@ -24,11 +24,11 @@ module Echidna
     end
 
     def channels
-      config.load_channels
+      @channels ||= config.load_channels
     end
 
     def playlists
-      config.load_playlists
+      @playlists ||= config.load_playlists
     end
 
     def map_videos(items)
@@ -55,6 +55,7 @@ module Echidna
         logger.info "Current channel is #{current_channel.name}"
 
         play_list_items_result = youtube.list_videos_playlist_items(current_channel.id, current_channel.max_results)
+        # Maybe make this a config setting?
         live_playlist_items_result = youtube.list_live_playlist_items(current_channel.id, current_channel.max_results)
 
         objects = []
@@ -77,6 +78,7 @@ module Echidna
             next
           end
 
+          # This is probably an issue
           current_items = youtube.get_all_playlist_items(current_channel.playlist_id)
           current_items_video_ids = current_items.map { |i| i.snippet.resource_id.video_id }
           selected_playlist = playlists.find { |playlist| playlist.id == current_channel.playlist_id }
