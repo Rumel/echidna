@@ -90,6 +90,9 @@ module Echidna
       end
       write_json(__method__, playlist_items)
       playlist_items
+    rescue StandardError => e
+      logger.error "Error get_all_playlist_items: #{e.message}"
+      []
     end
 
     # Get the uploads id for a channel
