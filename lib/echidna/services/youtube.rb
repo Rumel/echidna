@@ -114,7 +114,8 @@ module Echidna
     def list_videos_playlist_items(playlist_id, max_results = 25)
       videos_id = playlist_id.sub('UC', 'UULF')
       list_playlist_items(videos_id, max_results)
-    rescue StandardError
+    rescue StandardError => e
+      logger.error "Error list_videos_playlist_items: #{e.message}"
       nil
     end
 
@@ -122,7 +123,8 @@ module Echidna
     def list_live_playlist_items(playlist_id, max_results = 25)
       live_id = playlist_id.sub('UC', 'UULV')
       list_playlist_items(live_id, max_results)
-    rescue StandardError
+    rescue StandardError =>
+      logger.error "Error list_live_playlist_items: #{e.message}"
       nil
     end
 
@@ -144,6 +146,9 @@ module Echidna
       result = youtube.list_searches('snippet', q: query, max_results: 25)
       write_json(__method__, result)
       result
+    rescue StandardError => e
+      logger.error "Error search: #{e.message}"
+      []
     end
 
     def get_channel_id(query)
