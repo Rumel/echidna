@@ -123,7 +123,7 @@ module Echidna
     def list_live_playlist_items(playlist_id, max_results = 25)
       live_id = playlist_id.sub('UC', 'UULV')
       list_playlist_items(live_id, max_results)
-    rescue StandardError =>
+    rescue StandardError => e
       logger.error "Error list_live_playlist_items: #{e.message}"
       nil
     end
