@@ -51,6 +51,8 @@ module Echidna
 
     def add_videos_to_playlists
       count = 0
+      video_names = []
+
       channels.each do |current_channel|
         logger.info "Current channel is #{current_channel.name}"
 
@@ -95,6 +97,7 @@ module Echidna
               }
             }
             logger.info "Inserting \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
+            video_names << "#{current_channel.name} - \"#{object.snippet.title}\" - #{object.snippet.resource_id.video_id}"
             youtube.insert_playlist_item(playlist_item)
           end
           db.insert_video(object.snippet.resource_id.video_id, object.snippet.channel_title, object.snippet.published_at)
@@ -105,6 +108,7 @@ module Echidna
       end
 
       puts "Inserted #{count} videos into playlists"
+      video_names.each { |name| puts name }
     end
 
     def remove_videos_from_playlists
