@@ -3,7 +3,7 @@
 require 'yaml'
 require_relative '../models/channel'
 require_relative '../models/playlist'
-require_relative './logger'
+require_relative 'logger'
 
 module Echidna
   class ConfigService
@@ -14,7 +14,7 @@ module Echidna
     def find_config_file
       paths = []
       paths << File.join(ENV['XDG_CONFIG_HOME'], 'echidna', 'config.yaml') if ENV['XDG_CONFIG_HOME']
-      paths << File.join(ENV['HOME'], '.config', 'echidna', 'config.yaml') if ENV['HOME']
+      paths << File.join(Dir.home, '.config', 'echidna', 'config.yaml') if Dir.home
       paths << File.join(Dir.pwd, 'config.yaml')
 
       found_path = nil

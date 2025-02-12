@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative './config'
-require_relative './youtube'
-require_relative './db'
-require_relative './logger'
+require_relative 'config'
+require_relative 'youtube'
+require_relative 'db'
+require_relative 'logger'
 
 module Echidna
   class UpdateService
@@ -141,7 +141,7 @@ module Echidna
     private
 
     def get_position(selected_playlist, videos, item)
-      return 0 if videos.length.zero?
+      return 0 if videos.empty?
 
       found = nil
       after_found = false

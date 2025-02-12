@@ -29,6 +29,7 @@ RSpec.describe 'UpdateService' do
 
         describe "when the item's channel title is not in the playlist" do
           let(:videos) { [baseball, lemur] }
+
           describe 'and should come first' do
             let(:item) { double(snippet: double(channel_title: 'alligators')) }
 

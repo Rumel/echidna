@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'dotenv/load'
-require_relative './echidna/services/db'
-require_relative './echidna/services/update'
-require_relative './echidna/services/logger'
+require_relative 'echidna/services/db'
+require_relative 'echidna/services/update'
+require_relative 'echidna/services/logger'
 
 logger = Echidna::LogService.new
 logger.info 'Starting Echidna'

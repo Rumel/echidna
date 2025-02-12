@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 require 'dotenv/load'
-require_relative './echidna/services/youtube'
+require_relative 'echidna/services/youtube'
 
 yt = Echidna::YoutubeService.new
 search_term = ARGV.join(' ')
