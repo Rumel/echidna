@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-docker build -t echidna .
+docker buildx build -t echidna . --platform linux/amd64
+
