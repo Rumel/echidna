@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
 require 'dotenv/load'
 require_relative './echidna/services/db'
 require_relative './echidna/services/update'
