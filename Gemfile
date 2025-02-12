@@ -6,7 +6,7 @@ gem 'aws-sdk-dynamodb', '~> 1'
 gem 'base64'
 gem 'bigdecimal'
 gem 'dotenv'
-gem 'google-apis-youtube_v3', '~> 0.34.0'
+gem 'google-apis-youtube_v3', '>= 0.34.0'
 gem 'mutex_m'
 gem 'yaml'
 

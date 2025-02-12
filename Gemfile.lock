@@ -23,13 +23,13 @@ GEM
     diff-lcs (1.5.1)
     docile (1.4.0)
     dotenv (3.1.7)
-    faraday (2.12.0)
-      faraday-net_http (>= 2.0, < 3.4)
+    faraday (2.12.2)
+      faraday-net_http (>= 2.0, < 3.5)
       json
       logger
-    faraday-net_http (3.3.0)
-      net-http
-    google-apis-core (0.15.1)
+    faraday-net_http (3.4.0)
+      net-http (>= 0.5.0)
+    google-apis-core (0.16.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.3, < 3.a)
@@ -37,13 +37,15 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-apis-youtube_v3 (0.34.0)
-      google-apis-core (>= 0.11.0, < 2.a)
+    google-apis-youtube_v3 (0.53.0)
+      google-apis-core (>= 0.15.0, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
-    googleauth (1.11.2)
+    google-logging-utils (0.1.0)
+    googleauth (1.13.1)
       faraday (>= 1.0, < 3.a)
-      google-cloud-env (~> 2.1)
+      google-cloud-env (~> 2.2)
+      google-logging-utils (~> 0.1)
       jwt (>= 1.4, < 3.0)
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
@@ -51,14 +53,14 @@ GEM
     httpclient (2.8.3)
     jmespath (1.6.2)
     json (2.10.1)
-    jwt (2.9.3)
+    jwt (2.10.1)
       base64
     language_server-protocol (3.17.0.4)
     logger (1.6.5)
     mini_mime (1.1.5)
     multi_json (1.15.0)
     mutex_m (0.3.0)
-    net-http (0.5.0)
+    net-http (0.6.0)
       uri
     os (1.1.4)
     parallel (1.26.3)
@@ -127,7 +129,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
-    uri (1.0.1)
+    uri (1.0.2)
     yaml (0.4.0)
 
 PLATFORMS
@@ -142,7 +144,7 @@ DEPENDENCIES
   base64
   bigdecimal
   dotenv
-  google-apis-youtube_v3 (~> 0.34.0)
+  google-apis-youtube_v3 (>= 0.34.0)
   mutex_m
   rspec
   rubocop
